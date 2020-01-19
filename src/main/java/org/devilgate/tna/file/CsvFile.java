@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 public class CsvFile implements DelimitedFile {
 
@@ -13,7 +12,7 @@ public class CsvFile implements DelimitedFile {
 	private List<String> columnNames;
 	private CsvData fileData;
 
-	CsvFile(final Path path) {
+	public CsvFile(final Path path) {
 
 		this.path  = path;
 	}
@@ -40,10 +39,5 @@ public class CsvFile implements DelimitedFile {
 			e.printStackTrace();
 		}
 	}
-
-	private Map<String, String> nextLine() {
-		return null;
-	}
-
 }
 

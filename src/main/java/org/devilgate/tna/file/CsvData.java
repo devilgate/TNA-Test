@@ -30,12 +30,12 @@ public class CsvData implements DelimitedData {
 		// Assumption: the header names are not delimited with quotes.
 		columnNames = Arrays.asList(headerLine.split(","));
 
-		// We'll store the fields and values in a LinkedHashMap to keep the columns in the
-		// received order
-		Map<String, String> lineMap = new LinkedHashMap<>();
-
 		String line = reader.readLine();
 		while (line != null) {
+
+			// We'll store the fields and values in a LinkedHashMap to keep the columns in the
+			// received order
+			Map<String, String> lineMap = new LinkedHashMap<>();
 
 			checkForUnbalancedQuotes(line);
 
@@ -64,20 +64,19 @@ public class CsvData implements DelimitedData {
 	@Override
 	public String asString() {
 
-		StringBuilder output = new StringBuilder();
-		output.append(String.join(",", headers()));
-		output.append("\n");
+		return String.join(",", headers())
+		       + "\n"
+		       + rows.stream().map(
+		       		r -> r.entrySet().stream().map(
+		       				(entry) -> {
 
-		output.append(rows.stream().map(
-				r -> r.entrySet().stream().map(
-						(entry) -> {
-							if (entry.getValue().contains(" ") || entry.getValue().contains(",")) {
-								entry.setValue("\"" + entry.getValue() + "\"");
-							}
-							return entry.getValue();
-				}).collect(Collectors.joining(", "))
-		                               ).collect(Collectors.joining("\n")));
-		return output.toString();
+						        if (entry.getValue().contains(" ") || entry.getValue()
+								                                              .contains(",")) {
+							        entry.setValue("\"" + entry.getValue() + "\"");
+						        }
+						        return entry.getValue();
+		       				}).collect(Collectors.joining(", "))
+			        ).collect(Collectors.joining("\n"));
 	}
 
 	public List<String> headers() {
