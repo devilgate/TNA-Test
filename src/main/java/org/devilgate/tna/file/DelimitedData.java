@@ -18,4 +18,10 @@ public interface DelimitedData {
 	 * @return the header values, or an empty list.
 	 */
 	List<String> headers();
+
+	/**
+	 * Return the contents of the delimited data as a String.
+	 * @return the delimited data, after parsing
+	 */
+	String asString();
 }

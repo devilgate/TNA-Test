@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CsvData implements DelimitedData {
 
@@ -51,7 +52,7 @@ public class CsvData implements DelimitedData {
 			checkForWrongNumberOfColumns(splitLine);
 
 			for (int i = 0; i < columnNames.size(); i++) {
-				lineMap.put(columnNames.get(i), splitLine.get(i).replaceAll("\"", ""));
+				lineMap.put(columnNames.get(i), splitLine.get(i).trim().replaceAll("\"", ""));
 			}
 
 			rows.add(lineMap);
@@ -60,11 +61,30 @@ public class CsvData implements DelimitedData {
 		}
 	}
 
+	@Override
+	public String asString() {
+
+		StringBuilder output = new StringBuilder();
+		output.append(String.join(",", headers()));
+		output.append("\n");
+
+		output.append(rows.stream().map(
+				r -> r.entrySet().stream().map(
+						(entry) -> {
+							if (entry.getValue().contains(" ") || entry.getValue().contains(",")) {
+								entry.setValue("\"" + entry.getValue() + "\"");
+							}
+							return entry.getValue();
+				}).collect(Collectors.joining(", "))
+		                               ).collect(Collectors.joining("\n")));
+		return output.toString();
+	}
+
 	public List<String> headers() {
 		return columnNames;
 	}
 
-		private void checkForUnbalancedQuotes(final String line) {
+	private void checkForUnbalancedQuotes(final String line) {
 
 			// An odd number of double-quote characters indicates faulty data.
 			long noOfQuotes = line.chars().filter(ch -> ch == '"').count();
@@ -91,8 +111,21 @@ public class CsvData implements DelimitedData {
 
 				// There's some danger of an index out of bounds here, but it shouldn't
 				// be possible because of the earlier checks.
-				if (splitLine.get(i).startsWith("\"") && splitLine.get(i + 1).endsWith("\"")) {
-					newSplitLine.add(splitLine.get(i) + "," + splitLine.get(i + 1));
+				if (splitLine.get(i).trim().startsWith("\"")) {
+
+					// The field could contain multiple commas, so we loop until we find a
+					// closing quote.
+					StringBuffer buffer = new StringBuffer(splitLine.get(i));
+					for (int j = i + 1; j < splitLine.size(); j++) {
+						i++;
+						buffer.append(",").append(splitLine.get(j));
+						if (splitLine.get(j).endsWith("\"")) {
+							j = splitLine.size() + 1;
+						}
+					}
+
+					newSplitLine.add(buffer.toString());
+
 				} else {
 					newSplitLine.add(splitLine.get(i));
 				}
@@ -105,5 +138,4 @@ public class CsvData implements DelimitedData {
 
 		return columnNames.size();
 	}
-
 }

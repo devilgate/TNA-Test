@@ -11,6 +11,7 @@ public class CsvFile implements DelimitedFile {
 
 	private final Path path;
 	private List<String> columnNames;
+	private CsvData fileData;
 
 	CsvFile(final Path path) {
 
@@ -24,10 +25,15 @@ public class CsvFile implements DelimitedFile {
 	}
 
 	@Override
+	public String asString() {
+		return fileData.asString();
+	}
+
+	@Override
 	public void populate() {
 
 		try (Reader reader = new FileReader(path.toFile())) {
-			CsvData fileData = new CsvData(reader);
+			fileData = new CsvData(reader);
 			fileData.populate();
 			columnNames = fileData.headers();
 		} catch (IOException e) {
