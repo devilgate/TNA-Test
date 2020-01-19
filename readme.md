@@ -16,3 +16,23 @@ file22, Londom, "National Park Strategy", a4bf0d05d8805f8c35b633ee67dc10efd6efe1
 > Please write code that allows you to replace all occurrences of a specified value in a specified column (by header) with a new value, and saves a new version of the file.
 >
 > Given the example above, your function should let you change “Londom” to “London” in the “origin” column.
+
+## Building and Running
+
+Build using Maven:
+
+```
+mvn clean install
+```
+
+And run the created jar file:
+
+```
+java -jar target/TNATest-1.0-SNAPSHOT.jar
+```
+
+## Assumptions and Restrictions
+
+I worked on the assumption that column headers would not be enclosed in quotes, and that only fields containing spaces would be quoted.
+
+It wasn't specified in the brief, but I decided to build my solution without using external libraries (except JUnit for testing). I would normally have approached this by using a library such as [OpenCSV](http://opencsv.sourceforge.net), but it felt like more of a challenge to do it without any such aids.
