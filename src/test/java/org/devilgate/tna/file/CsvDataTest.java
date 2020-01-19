@@ -17,7 +17,13 @@ class CsvDataTest {
 	                          + "e737a6b0734308a08b8586720b3c299548ff77b846e3c9c89db88b63c7ea69b6"
 	                          + "\n" +
 	                          "file2, Surrey, \"a file about The National Archives\", "
-	                          + "a4bf0d05d8805f8c35b633ee67dc10efd6efe1cb8dfc0ecdba1040b551564967";;
+	                          + "a4bf0d05d8805f8c35b633ee67dc10efd6efe1cb8dfc0ecdba1040b551564967";
+	private String goodDataRecapitalised = "filename, origin, metadata, hash\n"
+	                          + "file1, London, \"A file about London\", "
+	                          + "e737a6b0734308a08b8586720b3c299548ff77b846e3c9c89db88b63c7ea69b6"
+	                          + "\n" +
+	                          "file2, Surrey, \"A file about The National Archives\", "
+	                          + "a4bf0d05d8805f8c35b633ee67dc10efd6efe1cb8dfc0ecdba1040b551564967";
 	private String oneEmbeddedComma = "filename, origin, metadata\n"
 	                                  + "file1, London, \"a string, containing one comma\"";
 	private String twoEmbeddedCommas = "filename, origin, metadata\n"
@@ -34,7 +40,7 @@ class CsvDataTest {
 
 		classUnderTest = new CsvData(new StringReader(goodData));
 		classUnderTest.populate();
-		List<String> heads = Arrays.asList("filename, origin, metadata, hash".split(","));
+		List<String> heads = Arrays.asList("filename, origin, metadata, hash".split("\\s*,\\s*"));
 		assertEquals(heads, classUnderTest.headers());
 	}
 
@@ -75,6 +81,20 @@ class CsvDataTest {
 
 		classUnderTest = new CsvData(new StringReader(unbalancedQuotes));
 		assertThrows(UnbalancedQuotesException.class, () -> classUnderTest.populate());
+	}
+
+	@Test
+	void when_scanAndReplace_then_replacedValueCorrect() throws IOException {
+
+		classUnderTest = new CsvData(new StringReader(goodData));
+		classUnderTest.populate();
+		classUnderTest.scanAndReplace("metadata", "a file about London", "A file about London");
+		classUnderTest.scanAndReplace("metadata", "a file about The National Archives", "A file "
+		                                                                                + "about The National Archives");
+		assertEquals(goodDataRecapitalised, classUnderTest.asString());
+
+
+
 	}
 
 }

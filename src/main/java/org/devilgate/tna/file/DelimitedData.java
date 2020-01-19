@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Represents delimited data, such as CSV; but abstracted from any underlying file.
+ * Represents delimited data, such as CSV, abstracted from any underlying file.
  */
 public interface DelimitedData {
 

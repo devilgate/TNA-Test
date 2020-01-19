@@ -16,7 +16,6 @@ public class CsvData implements DelimitedData {
 	private List<String> columnNames;
 	private List<Map<String, String>> rows = new LinkedList<>();
 
-
 	CsvData(Reader reader) {
 
 		this.reader = new BufferedReader(reader);
@@ -27,8 +26,9 @@ public class CsvData implements DelimitedData {
 
 		String headerLine = reader.readLine();
 
-		// Assumption: the header names are not delimited with quotes.
-		columnNames = Arrays.asList(headerLine.split(","));
+		// Assumption: the header names are not delimited with quotes. We remove any spaces on
+		// splitting, as they can cause problems later.
+		columnNames = Arrays.asList(headerLine.split("\\s*,\\s*"));
 
 		String line = reader.readLine();
 		while (line != null) {
@@ -64,7 +64,7 @@ public class CsvData implements DelimitedData {
 	@Override
 	public String asString() {
 
-		return String.join(",", headers())
+		return String.join(", ", headers())
 		       + "\n"
 		       + rows.stream().map(
 		       		r -> r.entrySet().stream().map(
@@ -114,7 +114,7 @@ public class CsvData implements DelimitedData {
 
 					// The field could contain multiple commas, so we loop until we find a
 					// closing quote.
-					StringBuffer buffer = new StringBuffer(splitLine.get(i));
+					StringBuilder buffer = new StringBuilder(splitLine.get(i));
 					for (int j = i + 1; j < splitLine.size(); j++) {
 						i++;
 						buffer.append(",").append(splitLine.get(j));
@@ -122,13 +122,11 @@ public class CsvData implements DelimitedData {
 							j = splitLine.size() + 1;
 						}
 					}
-
 					newSplitLine.add(buffer.toString());
 
 				} else {
 					newSplitLine.add(splitLine.get(i));
 				}
-
 			}
 			return newSplitLine;
 		}
@@ -137,4 +135,25 @@ public class CsvData implements DelimitedData {
 
 		return columnNames.size();
 	}
+
+	boolean scanAndReplace(String column, String from, String to) {
+
+		boolean changed = false;
+		if (!columnNames.contains(column)) {
+
+			// This should never happen, of course.
+			throw new ColumnNotFoundException(column, columnNames);
+		}
+
+		for (Map<String, String> row : rows) {
+
+			if (row.get(column).equals(from)) {
+				row.put(column, to);
+				changed  = true;
+			}
+		}
+
+		return changed;
+	}
+
 }
