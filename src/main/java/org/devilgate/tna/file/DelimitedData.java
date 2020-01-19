@@ -15,12 +15,14 @@ public interface DelimitedData {
 
 	/**
 	 * Return the list of header values for the data, if any.
+	 *
 	 * @return the header values, or an empty list.
 	 */
 	List<String> headers();
 
 	/**
 	 * Return the contents of the delimited data as a String.
+	 *
 	 * @return the delimited data, after parsing
 	 */
 	String asString();

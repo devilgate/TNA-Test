@@ -21,13 +21,13 @@ public class Console {
 			+ "name %n%n";
 	private static final String PROMPT_FOR_EXISTING_VALUE =
 			"%nPlease enter the existing value of column '%s' that you want to "
-				+ "change:%n%n";
+			+ "change:%n%n";
 	private static final String PROMPT_FOR_NEW_VALUE =
 			"%nPlease enter the new value for column '%s' that the should "
-				+ "replace '%s':%n%n";
+			+ "replace '%s':%n%n";
 	private static final String ABOUT_TO_REPLACE_PROMPT =
 			"About to replace all values of column '%s' in file '%s' having value "
-				+ "'%s' with the value '%s'. A new file will be created.%n%n";
+			+ "'%s' with the value '%s'. A new file will be created.%n%n";
 	private static final String OK_TO_GO_AHEAD = "OK to go ahead? [y/N]\n";
 	private static final String NEW_FILE_CREATED = "New file %s created";
 	private static final String UPDATING = "Updating...";
@@ -51,7 +51,7 @@ public class Console {
 			System.out.println(USING_DEFAULT + DEFAULT_FILE_NAME + "\n");
 			fileName = DEFAULT_FILE_NAME;
 		}
-		
+
 		loadFile(fileName);
 		showHeaders();
 		String columnToChange = promptForHeader();
@@ -66,7 +66,7 @@ public class Console {
 		System.out.println(OK_TO_GO_AHEAD);
 		if (scanner.next().equalsIgnoreCase("y")) {
 			System.out.println(UPDATING);
-			if (inputFile.scanAndReplace(columnToChange, fromValue, toValue)) {
+			if (inputFile.createCopyWithReplacedText(columnToChange, fromValue, toValue)) {
 				System.out.printf(NEW_FILE_CREATED, inputFile.newFileName());
 			}
 

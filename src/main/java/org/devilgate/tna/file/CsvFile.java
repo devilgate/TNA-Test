@@ -19,18 +19,7 @@ public class CsvFile implements DelimitedData {
 
 	public CsvFile(final Path path) {
 
-		this.path  = path;
-	}
-
-	@Override
-	public List<String> headers() {
-
-		return columnNames;
-	}
-
-	@Override
-	public String asString() {
-		return fileData.asString();
+		this.path = path;
 	}
 
 	@Override
@@ -49,7 +38,31 @@ public class CsvFile implements DelimitedData {
 		}
 	}
 
-	public boolean scanAndReplace(String column, String from, String to) throws IOException {
+	@Override
+	public List<String> headers() {
+
+		return columnNames;
+	}
+
+	@Override
+	public String asString() {
+		return fileData.asString();
+	}
+
+	/**
+	 * Lets the caller create a copy of the current file, with values in a selected column
+	 * replaced by another value.
+	 *
+	 * @param column the column name to scan
+	 * @param from the text to scan for
+	 * @param to the text with which to replace it
+	 *
+	 * @return true if any replacements were made
+	 *
+	 * @throws IOException if there was a problem creating the new file.
+	 */
+	public boolean createCopyWithReplacedText(String column, String from, String to)
+			throws IOException {
 		if (fileData.scanAndReplace(column, from, to)) {
 			newFile = createNewPath();
 			try (Writer writer = new BufferedWriter(new FileWriter(newFile.toFile()))) {

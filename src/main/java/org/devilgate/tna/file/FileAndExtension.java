@@ -2,6 +2,9 @@ package org.devilgate.tna.file;
 
 import java.nio.file.Path;
 
+/**
+ * A convenience class for splitting up a file name and its extension.
+ */
 class FileAndExtension {
 
 	private final Path path;
