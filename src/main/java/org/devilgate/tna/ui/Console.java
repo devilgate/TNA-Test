@@ -68,12 +68,11 @@ public class Console {
 			System.out.println(UPDATING);
 			if (inputFile.createCopyWithReplacedText(columnToChange, fromValue, toValue)) {
 				System.out.printf(NEW_FILE_CREATED, inputFile.newFileName());
+				return;
 			}
-
-		} else {
-			System.out.println(UPDATE_CANCELLED);
-			System.exit(0);
 		}
+		System.out.println(UPDATE_CANCELLED);
+		System.exit(0);
 	}
 
 	private void loadFile(final String fileName) {

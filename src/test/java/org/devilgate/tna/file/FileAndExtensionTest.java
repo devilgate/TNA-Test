@@ -16,7 +16,6 @@ class FileAndExtensionTest {
 		Path path = Paths.get(filename);
 
 		FileAndExtension classUnderTest = new FileAndExtension(path);
-		classUnderTest.split();
 		assertEquals("file", classUnderTest.name());
 		assertEquals("dat", classUnderTest.extension());
 	}

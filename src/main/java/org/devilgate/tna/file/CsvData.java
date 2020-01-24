@@ -36,29 +36,35 @@ public class CsvData implements DelimitedData {
 			// We'll store the fields and values in a LinkedHashMap to keep the columns in the
 			// received order
 			Map<String, String> lineMap = new LinkedHashMap<>();
-
 			checkForUnbalancedQuotes(line);
+			List<String> splitLine = Arrays.asList(line.split(","));
 
 			// Check for the data containing commas within quoted text.
-			List<String> splitLine = Arrays.asList(line.split(","));
-			if (splitLine.size() != columnNames.size()) {
-
-				// Looks like there are commas in the quoted data. Need to go deeper.
-				splitLine = rebuildLine(splitLine);
-			}
+			splitLine = checkForCommas(splitLine);
 
 			// If at this point the number of data points does not match the number of
 			// headers, we als have an invalid file.
 			checkForWrongNumberOfColumns(splitLine);
-
-			for (int i = 0; i < columnNames.size(); i++) {
-				lineMap.put(columnNames.get(i), splitLine.get(i).trim().replaceAll("\"", ""));
-			}
-
+			clearQuotesFromStrings(lineMap, splitLine);
 			rows.add(lineMap);
-
 			line = reader.readLine();
 		}
+	}
+
+	private void clearQuotesFromStrings(final Map<String, String> lineMap,
+			final List<String> splitLine) {
+		for (int i = 0; i < columnNames.size(); i++) {
+			lineMap.put(columnNames.get(i), splitLine.get(i).trim().replaceAll("\"", ""));
+		}
+	}
+
+	private List<String> checkForCommas(List<String> splitLine) {
+		if (splitLine.size() != columnNames.size()) {
+
+			// Looks like there are commas in the quoted data. Need to go deeper.
+			splitLine = rebuildLine(splitLine);
+		}
+		return splitLine;
 	}
 
 	@Override
@@ -149,8 +155,6 @@ public class CsvData implements DelimitedData {
 				changed = true;
 			}
 		}
-
 		return changed;
 	}
-
 }

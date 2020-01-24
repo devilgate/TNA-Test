@@ -15,17 +15,6 @@ class FileAndExtension {
 		this.path = path;
 	}
 
-	void split() {
-		String fullName = path.getFileName().toString();
-		if (fullName.contains(".")) {
-			int separatorIndex = fullName.lastIndexOf(".");
-			name = fullName.substring(0, separatorIndex);
-			extension = fullName.substring(separatorIndex + 1);
-		} else {
-			name = fullName;
-		}
-	}
-
 	String name() {
 		if (name == null) {
 			split();
@@ -38,5 +27,15 @@ class FileAndExtension {
 			split();
 		}
 		return extension;
+	}
+
+	private void split() {
+		String fullName = path.getFileName().toString();
+		name = fullName;
+		if (fullName.contains(".")) {
+			int separatorIndex = fullName.lastIndexOf(".");
+			name = fullName.substring(0, separatorIndex);
+			extension = fullName.substring(separatorIndex + 1);
+		}
 	}
 }

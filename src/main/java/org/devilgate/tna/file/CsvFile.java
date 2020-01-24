@@ -65,12 +65,16 @@ public class CsvFile implements DelimitedData {
 			throws IOException {
 		if (fileData.scanAndReplace(column, from, to)) {
 			newFile = createNewPath();
-			try (Writer writer = new BufferedWriter(new FileWriter(newFile.toFile()))) {
-				writer.write(asString());
-				return true;
-			}
+			return writeNewFile();
 		}
 		return false;
+	}
+
+	private boolean writeNewFile() throws IOException {
+		try (Writer writer = new BufferedWriter(new FileWriter(newFile.toFile()))) {
+			writer.write(asString());
+			return true;
+		}
 	}
 
 	private Path createNewPath() {
