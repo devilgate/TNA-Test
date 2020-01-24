@@ -66,13 +66,18 @@ public class Console {
 		System.out.println(OK_TO_GO_AHEAD);
 		if (scanner.next().equalsIgnoreCase("y")) {
 			System.out.println(UPDATING);
-			if (inputFile.createCopyWithReplacedText(columnToChange, fromValue, toValue)) {
-				System.out.printf(NEW_FILE_CREATED, inputFile.newFileName());
-				return;
-			}
+			createNewFile(columnToChange, fromValue, toValue);
+			return;
 		}
 		System.out.println(UPDATE_CANCELLED);
 		System.exit(0);
+	}
+
+	private void createNewFile(final String columnToChange, final String fromValue,
+			final String toValue) throws IOException {
+		if (inputFile.createCopyWithReplacedText(columnToChange, fromValue, toValue)) {
+			System.out.printf(NEW_FILE_CREATED, inputFile.newFileName());
+		}
 	}
 
 	private void loadFile(final String fileName) {

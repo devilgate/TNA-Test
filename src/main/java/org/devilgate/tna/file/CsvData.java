@@ -3,18 +3,12 @@ package org.devilgate.tna.file;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CsvData implements DelimitedData {
 
 	private final BufferedReader reader;
-	private List<String> columnNames;
-	private List<Map<String, String>> rows = new LinkedList<>();
+	private CsvRows rows = new CsvRows();
 
 	CsvData(Reader reader) {
 
@@ -24,137 +18,26 @@ public class CsvData implements DelimitedData {
 	@Override
 	public void populate() throws IOException {
 
-		String headerLine = reader.readLine();
-
-		// Assumption: the header names are not delimited with quotes. We remove any spaces on
-		// splitting, as they can cause problems later.
-		columnNames = Arrays.asList(headerLine.split("\\s*,\\s*"));
-
 		String line = reader.readLine();
 		while (line != null) {
-
-			// We'll store the fields and values in a LinkedHashMap to keep the columns in the
-			// received order
-			Map<String, String> lineMap = new LinkedHashMap<>();
-			checkForUnbalancedQuotes(line);
-			List<String> splitLine = Arrays.asList(line.split(","));
-
-			// Check for the data containing commas within quoted text.
-			splitLine = checkForCommas(splitLine);
-
-			// If at this point the number of data points does not match the number of
-			// headers, we als have an invalid file.
-			checkForWrongNumberOfColumns(splitLine);
-			clearQuotesFromStrings(lineMap, splitLine);
-			rows.add(lineMap);
+			rows.addRow(line);
 			line = reader.readLine();
 		}
 	}
 
-	private void clearQuotesFromStrings(final Map<String, String> lineMap,
-			final List<String> splitLine) {
-		for (int i = 0; i < columnNames.size(); i++) {
-			lineMap.put(columnNames.get(i), splitLine.get(i).trim().replaceAll("\"", ""));
-		}
-	}
-
-	private List<String> checkForCommas(List<String> splitLine) {
-		if (splitLine.size() != columnNames.size()) {
-
-			// Looks like there are commas in the quoted data. Need to go deeper.
-			splitLine = rebuildLine(splitLine);
-		}
-		return splitLine;
-	}
-
 	@Override
 	public List<String> headers() {
-		return columnNames;
+		return rows.headers();
 	}
 
 	@Override
 	public String asString() {
 
-		return String.join(", ", headers())
-		       + "\n"
-		       + rows.stream().map(
-				r -> r.entrySet().stream().map(
-						(entry) -> {
-
-							// Wrap in quotes if the data contains space or commas
-							if (entry.getValue().contains(" ") || entry.getValue()
-									                                      .contains(",")) {
-								entry.setValue("\"" + entry.getValue() + "\"");
-							}
-							return entry.getValue();
-						}).collect(Collectors.joining(", "))
-		                          ).collect(Collectors.joining("\n"));
-	}
-
-	private void checkForUnbalancedQuotes(final String line) {
-
-		// An odd number of double-quote characters indicates faulty data.
-		long noOfQuotes = line.chars().filter(ch -> ch == '"').count();
-		if (noOfQuotes % 2 != 0) {
-
-			throw new UnbalancedQuotesException(line);
-		}
-	}
-
-	private void checkForWrongNumberOfColumns(final List<String> splitLine) {
-
-		if (splitLine.size() != columnNames.size()) {
-
-			throw new MismatchedColumnsException(splitLine, headers());
-		}
-	}
-
-	private List<String> rebuildLine(final List<String> splitLine) {
-
-		final List<String> newSplitLine = new LinkedList<>();
-
-		// Find the fields with quotes
-		for (int i = 0; i < splitLine.size(); i++) {
-
-			// There's some danger of an index out of bounds here, but it shouldn't
-			// be possible because of the earlier checks.
-			if (splitLine.get(i).trim().startsWith("\"")) {
-
-				// The field could contain multiple commas, so we loop until we find a
-				// closing quote.
-				StringBuilder buffer = new StringBuilder(splitLine.get(i));
-				for (int j = i + 1; j < splitLine.size(); j++) {
-					i++;
-					buffer.append(",").append(splitLine.get(j));
-					if (splitLine.get(j).endsWith("\"")) {
-						j = splitLine.size() + 1;
-					}
-				}
-				newSplitLine.add(buffer.toString());
-
-			} else {
-				newSplitLine.add(splitLine.get(i));
-			}
-		}
-		return newSplitLine;
+		return new CsvPrint(rows).print();
 	}
 
 	boolean scanAndReplace(String column, String from, String to) {
 
-		boolean changed = false;
-		if (!columnNames.contains(column)) {
-
-			// This should never happen.
-			throw new ColumnNotFoundException(column, columnNames);
-		}
-
-		for (Map<String, String> row : rows) {
-
-			if (row.get(column).equals(from)) {
-				row.put(column, to);
-				changed = true;
-			}
-		}
-		return changed;
+		return rows.scanAndReplace(column, from, to);
 	}
 }

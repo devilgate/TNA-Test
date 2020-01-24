@@ -9,4 +9,6 @@ class MismatchedColumnsException extends RuntimeException {
 		super(String.format("The line %s has a different number of columns from the headers %s ",
 		                    String.join(", ", line), String.join(", ", headers)));
 	}
+
+	MismatchedColumnsException() {}
 }
