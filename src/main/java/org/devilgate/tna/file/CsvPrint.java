@@ -15,14 +15,15 @@ public class CsvPrint {
 
 		return rows.stream().map(
 				row -> row.stream().map(
-						field -> {
-
-							// Wrap in quotes if the data contains space or commas
-							if (field.contains(" ") || field.contains(",")) {
-								field = "\"" + field + "\"";
-							}
-							return field;
-						}).collect(Collectors.joining(", "))
+						this::wrapInQuotesIfNeeded).collect(Collectors.joining(", "))
 		                        ).collect(Collectors.joining("\n"));
+	}
+
+	private String wrapInQuotesIfNeeded(String field) {
+
+		if (field.contains(" ") || field.contains(",")) {
+			field = "\"" + field + "\"";
+		}
+		return field;
 	}
 }
